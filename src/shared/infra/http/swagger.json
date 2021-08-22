@@ -1,0 +1,366 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"title": "Tools API",
+		"description": "API para manipular ferramentas de desenvolvimento, filtradas por tags.",
+		"contact": {
+			"email": "santos.leandro.contact@gmail.com"
+		},
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "http://localhost:3333",
+			"description": "Tools API"
+		}
+	],
+	"paths": {
+		"/users": {
+			"post": {
+				"summary": "Cadastro de usuário",
+				"description": "Rota responsável por cadastrar usuário usando nome, e-mail e senha.",
+				"tags": [
+					"Users"
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/User"
+							},
+							"examples": {
+								"user": {
+									"value": {
+										"name": "Leandro",
+										"email": "leandro@email.com",
+										"password": "123456"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"400": {
+						"description": "Endereço de e-mail já está sendo usado.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/User"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/sessions": {
+			"post": {
+				"summary": "Login de usuário",
+				"description": "Rota responsável por fazer login usando e-mail e senha.",
+				"tags": [
+					"Users"
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AuthCredentials"
+							},
+							"examples": {
+								"auth-credentials": {
+									"value": {
+										"email": "leandro@email.com",
+										"password": "123456"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"401": {
+						"description": "E-mail ou senha incorretos.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"user": {
+											"type": "object",
+											"$ref": "#/components/schemas/User"
+										},
+										"token": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tools": {
+			"post": {
+				"summary": "Cadastro de ferramenta",
+				"description": "Rota responsável por cadastrar ferramenta usando nome, link, descrição e tags.",
+				"tags": [
+					"Tools"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Tool"
+							},
+							"examples": {
+								"tool": {
+									"value": {
+										"title": "ReactJS",
+										"link": "https://github.com/facebook/react/",
+										"description": "Javascript Library by Facebook",
+										"tags": [
+											"js",
+											"ts",
+											"node"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"401": {
+						"description": "Usuário não está autenticado.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Tool"
+								}
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"summary": "Listagem de ferramentas por tags",
+				"description": "Rota responsável por listar ferramentas filtrando por tags.",
+				"tags": [
+					"Tools"
+				],
+				"parameters": [
+					{
+						"name": "tag",
+						"in": "query",
+						"description": "Nome da Tag usada para filtrar as ferramentas"
+					}
+				],
+				"responses": {
+					"400": {
+						"description": "Informe uma tag para buscar as ferramentas.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/Tool"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tools/{id}": {
+			"delete": {
+				"summary": "Excluir ferramenta por id",
+				"description": "Rota responsável por excluir ferramenta pelo id informado",
+				"tags": [
+					"Tools"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"description": "Id da ferramenta a ser excluída",
+						"required": true
+					}
+				],
+				"responses": {
+					"400": {
+						"description": "Id da Ferramenta não informado.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Usuário não está autenticado.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "A ferramenta informada não existe.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"User": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					}
+				}
+			},
+			"AuthCredentials": {
+				"type": "object",
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				}
+			},
+			"Tool": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"title": {
+						"type": "string"
+					},
+					"link": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"tags": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"Error": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "number"
+					},
+					"message": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"securitySchemes": {
+			"bearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
+	}
+}
