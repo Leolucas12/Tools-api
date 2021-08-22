@@ -22,16 +22,6 @@ class TagsRepository implements ITagsRepository {
 
     return tag;
   }
-
-  public async findByTool(id: string): Promise<Tag[]> {
-    const tags = await this.ormRepository
-      .createQueryBuilder('tag')
-      .leftJoinAndSelect('tag.tools', 'tool')
-      .where('tool.id = :toolsId', { toolsId: id })
-      .getMany();
-
-    return tags;
-  }
 }
 
 export default TagsRepository;
